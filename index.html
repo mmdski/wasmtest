@@ -8,28 +8,31 @@
 
     function testptr() {
         "use strict";
-        let size = 1;
-        let t = new Float32Array(size);
-        t[0] = Math.PI;
+        let size = 10;
 
-        let t_buff = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
-        HEAPF32.set(t, t_buff);
+        let t_ptr = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
+        let t_buffer = new Float32Array(HEAPF32.buffer, t_ptr, size);
 
-        let ptr_value = _get_ptr_value(t_buff);
-        // let ptr_value = ccall('get_ptr_value', 'number', ['number'], [t_buff])
+        for (let i = 0; i < size; i++) {
+            t_buffer[i] = 10 * (i + 1);
+        }
 
-        let value = getValue(t_buff, 'float');
+        let x_ptr = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
+        let x_buffer = new Float32Array(HEAPF32.buffer, x_ptr, size);
 
-        let t_ptr = _get_ptr(t_buff);
+        console.log('Before copy:');
+        for (let i = 0; i < size; i++) {
+            console.log('t_buffer[' + i + ']=' + t_buffer[i] + '\tx_buffer[' + i + ']=' + x_buffer[i]);
+        }
+        _copy_float(size, t_ptr, x_ptr);
 
-        let t_on_heap = HEAPF32.slice(t_buff, t_buff + size);
+        console.log('After copy:');
+        for (let i = 0; i < size; i++) {
+            console.log('t_buffer[' + i + ']=' + t_buffer[i] + '\tx_buffer[' + i + ']=' + x_buffer[i]);
+        }
 
-        let x_buff = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
-        _copy_array(size, t, x_buff);
-        let x = HEAPF32.slice(x_buff, x_buff + size);
-
-        _free(t_buff);
-        _free(x_buff);
+        _free(t_ptr);
+        _free(x_ptr);
     }
 </script>
 <script type="text/javascript" src="test.js"></script>
