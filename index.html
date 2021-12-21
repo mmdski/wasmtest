@@ -1,0 +1,35 @@
+<script type="text/javascript">
+
+    var Module = {
+        onRuntimeInitialized: function() {
+            testptr();
+        }
+    };
+
+    function testptr() {
+        "use strict";
+        let size = 1;
+        let t = new Float32Array(size);
+        t[0] = Math.PI;
+
+        let t_buff = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
+        HEAPF32.set(t, t_buff);
+
+        let ptr_value = _get_ptr_value(t_buff);
+        // let ptr_value = ccall('get_ptr_value', 'number', ['number'], [t_buff])
+
+        let value = getValue(t_buff, 'float');
+
+        let t_ptr = _get_ptr(t_buff);
+
+        let t_on_heap = HEAPF32.slice(t_buff, t_buff + size);
+
+        let x_buff = _calloc(size, Float32Array.BYTES_PER_ELEMENT);
+        _copy_array(size, t, x_buff);
+        let x = HEAPF32.slice(x_buff, x_buff + size);
+
+        _free(t_buff);
+        _free(x_buff);
+    }
+</script>
+<script type="text/javascript" src="test.js"></script>
